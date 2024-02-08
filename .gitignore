@@ -5,3 +5,4 @@ dataset_*
 gt
 result
 test
+__pycache__
