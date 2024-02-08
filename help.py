@@ -1,3 +1,7 @@
 import os
-print(os.getcwd())
-print(os.listdir('./dataset'))
+from PIL import Image
+
+
+img = Image.open("dataset_polarimetric/train/PARAM_POLAR/0.png")
+
+print(img)
