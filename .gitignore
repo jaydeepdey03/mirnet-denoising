@@ -1,0 +1,7 @@
+venv
+weights
+dataset
+dataset_*
+gt
+result
+test
