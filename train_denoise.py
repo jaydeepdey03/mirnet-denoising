@@ -20,7 +20,8 @@ from utils import *
 train_ds = SSID(subset='train').dataset(repeat_count=1)
 valid_ds = SSID(subset='valid').dataset(repeat_count=1)
 
-test_path = 'dataset_polarimetric_output/test/PARAM_POLAR'
+# test_path = 'dataset_polarimetric_output/test/PARAM_POLAR'
+test_path = '/content/drive/MyDrive/test/PARAM_POLAR'
 # test_img_paths = sorted(
 #     [
 #         os.path.join(test_path, fname)

@@ -103,9 +103,13 @@ class ESPCNCallback(keras.callbacks.Callback):
 
 
 class SSID:
+    # def __init__(self,
+    #              subset='train',ls=os.listdir("./dataset"),
+    #              images_dir='dataset'):
+        
     def __init__(self,
-                 subset='train',ls=os.listdir("./dataset"),
-                 images_dir='dataset'):
+                 subset='train',ls=os.listdir("/content/drive/MyDrive/dataset"),
+                 images_dir='/content/drive/MyDrive/dataset'):
         
         # with open(instant_name) as f:
         #     ls = [l.rstrip() for l in f]
