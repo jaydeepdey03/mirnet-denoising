@@ -23,7 +23,7 @@ def annotate_images(csv_path, image_dir, output_dir):
         image_name, class_label = annotation[0], annotation[3]
         image_path = os.path.join(image_dir, image_name)
         output_path = os.path.join(output_dir, "annotated_" + image_name)
-        
+        print(output_path)
         img = Image.open(image_path)
         draw = ImageDraw.Draw(img)
         
@@ -33,16 +33,16 @@ def annotate_images(csv_path, image_dir, output_dir):
         draw.rectangle([x_min, y_min, x_max, y_max], outline="red", width=2)
         
         # Draw class label underneath the bounding box
-        text = f"Class: {class_label}"
-        text_width, text_height = draw.textsize(text)
+        text = f"{class_label}"
+        _, _, width, text_height = draw.textbbox((0, 0), text=text)
         draw.rectangle([x_min, y_max, x_max, y_max + text_height + 4], fill="green")
         draw.text((x_min, y_max), text, fill="white")
         
         img.save(output_path)
 
 # Example usage
-csv_path = "/Users/jaydeepdey/Desktop/capstone code/CNN_Denoising/MIRNet-Keras/dataset_polarimetric/train/labels.csv"
-image_dir = "/Users/jaydeepdey/Desktop/capstone code/CNN_Denoising/MIRNet-Keras/dataset_polarimetric/train/PARAMS_POLAR/"
-output_dir = "/Users/jaydeepdey/Desktop/capstone code/CNN_Denoising/MIRNet-Keras/dataset_polarimetric_annotated/"
+csv_path = "./CNN_Denoising/MIRNet-Keras/dataset_polarimetric/train/labels.csv"
+image_dir = "./CNN_Denoising/MIRNet-Keras/dataset_polarimetric/train/PARAM_POLAR"
+output_dir = "./CNN_Denoising/MIRNet-Keras/dataset_polarimetric_annotated"
 
 annotate_images(csv_path, image_dir, output_dir)
