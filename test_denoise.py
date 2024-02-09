@@ -1,9 +1,5 @@
 import os
 import cv2
-import sys
-import glob
-import time
-import math
 import argparse
 import numpy as np
 import tensorflow as tf 

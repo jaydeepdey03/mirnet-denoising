@@ -1,5 +1,5 @@
 venv
-weights
+*.h5
 dataset
 dataset_*
 gt
