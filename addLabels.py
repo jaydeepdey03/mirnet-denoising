@@ -37,9 +37,8 @@ def convert_to_csv(xml_folder, csv_file):
             xml_path = os.path.join(xml_folder, xml_file)
             data_list.extend(parse_xml(xml_path))
 
-    # Sort the data based on the 'filename' column
+    # Sort the data based on the numeric part of the 'filename' column
     data_list.sort(key=lambda x: int(''.join(filter(str.isdigit, x[0]))))
-
 
     with open(csv_file, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
@@ -47,6 +46,6 @@ def convert_to_csv(xml_folder, csv_file):
         csv_writer.writerows(data_list)
 
 # Example usage
-xml_folder = './dataset_polarimetric/train/LABELS'
-csv_file = './dataset_polarimetric/train/labels.csv'
+xml_folder = 'CNN/MIRNet-Keras/dataset_polarimetric/validation/labels_xml'
+csv_file = 'CNN/MIRNet-Keras/dataset_polarimetric/validation/labels.csv'
 convert_to_csv(xml_folder, csv_file)

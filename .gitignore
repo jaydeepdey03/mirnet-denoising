@@ -3,6 +3,7 @@ venv
 dataset
 dataset_*
 gt
+annotated_images
 result
 test
 __pycache__

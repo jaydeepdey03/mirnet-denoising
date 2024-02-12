@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
 	# Input Parameters
-    parser.add_argument('--test_path', type=str, default="test/denoise/")
+    parser.add_argument('--test_path', type=str, default="/content/drive/MyDrive/test/denoise/")
     parser.add_argument('--gpu', type=str, default='1')
     parser.add_argument('--checkpoint_filepath', type=str, default="weights/denoise/")
     parser.add_argument('--num_rrg', type=int, default= 3)

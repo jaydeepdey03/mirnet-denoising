@@ -4,7 +4,7 @@ import time
 import math
 import tensorflow as tf
 import numpy as np
-
+import json
 from tensorflow.python.data.experimental import AUTOTUNE
 from tensorflow import keras
 
@@ -82,18 +82,32 @@ def predict_images(model, img):
     return out_img
 
 class ESPCNCallback(keras.callbacks.Callback):
-    def __init__(self, test_img_paths, mode, checkpoint_ep):
+    def __init__(self, test_img_paths, mode, checkpoint_ep, json_file_path):
         super(ESPCNCallback, self).__init__()
         self.test_img = get_lowres_image(load_img(test_img_paths[0]), mode=mode)
         self.mode = mode
         self.checkpoint_ep = checkpoint_ep
+        self.json_file_path = json_file_path
+        self.epoch_metrics = {'epoch': [], 'psnr': [], 'loss': []}
+
+
 
     # Store PSNR value in each epoch.
     def on_epoch_begin(self, epoch, logs=None):
         self.psnr = []
 
     def on_epoch_end(self, epoch, logs=None):
-        print("Mean PSNR for epoch: %.2f" % (np.mean(self.psnr)))
+        mean_psnr = np.mean(self.psnr)
+        mean_loss = np.mean(self.loss)
+        # print("Mean PSNR for epoch: %.2f" % (np.mean(self.psnr)))
+        print("Epoch {}: Mean PSNR: {:.2f}, Mean Loss: {:.4f}".format(epoch, mean_psnr, mean_loss))
+        self.epoch_metrics['epoch'].append(epoch)
+        self.epoch_metrics['psnr'].append(float(mean_psnr))
+        self.epoch_metrics['loss'].append(float(mean_loss))
+
+        with open(self.json_file_path, 'w') as json_file:
+            json.dump(self.epoch_metrics, json_file)
+
         if (epoch + 1)  % self.checkpoint_ep == 0:
             prediction = predict_images(self.model, self.test_img)
             plot_results(prediction, "epoch-" + str(epoch), "prediction", mode=self.mode)
@@ -103,13 +117,13 @@ class ESPCNCallback(keras.callbacks.Callback):
 
 
 class SSID:
-    # def __init__(self,
-    #              subset='train',ls=os.listdir("./dataset"),
-    #              images_dir='dataset'):
-        
     def __init__(self,
-                 subset='train',ls=os.listdir("/content/drive/MyDrive/dataset"),
-                 images_dir='/content/drive/MyDrive/dataset'):
+                 subset='train',ls=os.listdir("CNN/MIRNet-Keras/dataset"),
+                 images_dir='CNN/MIRNet-Keras/dataset'):
+        
+    # def __init__(self,
+    #              subset='train',ls=os.listdir("/content/drive/MyDrive/dataset"),
+    #              images_dir='/content/drive/MyDrive/dataset'):
         
         # with open(instant_name) as f:
         #     ls = [l.rstrip() for l in f]
