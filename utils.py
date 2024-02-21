@@ -126,7 +126,7 @@ class ESPCNCallback(keras.callbacks.Callback):
         generated_img = predict_images(self.model, self.test_img)
         # current_ssim = self.calculate_ssim(self.test_img, generated_img)
 
-        print(generated_img)
+        print(generated_img, 'img generated')
 
 
         self.psnr.append(10 * math.log10(255.0 / logs["loss"]))
