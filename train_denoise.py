@@ -20,7 +20,7 @@ from utils import *
 train_ds = SSID(subset='train').dataset(repeat_count=1)
 valid_ds = SSID(subset='valid').dataset(repeat_count=1)
 
-test_path = './drive/MyDrive/all dataset/dataset_polarimetric_output/test/PARAM_POLAR' # works
+test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR' # works
 # test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR'
 # test_img_paths = sorted(
 #     [
@@ -96,20 +96,21 @@ def train(config):
     # )
 
     current_epoch_callback = ModelCheckpoint(
-        filepath=config.checkpoint_filepath + 'currentEpoch/' + f'epoch_{{epoch:02d}}.h5',
+        checkpoint_filepath + 'currentEpoch/' + f'epoch_{{epoch:02d}}.h5',
         save_every='epoch',  # Save after each epoch
         verbose=1
     )
     best_epoch_callback = ModelCheckpoint(
-        filepath=config.checkpoint_filepath + 'bestEpochTillNow/'+ f'best_{{val_psnr_denoise:.2f}}.h5',
+        checkpoint_filepath + 'bestEpochTillNow/'+ f'best_{{val_psnr_denoise:.2f}}.h5',
         monitor='val_psnr_denoise',
         mode='max',
         save_best_only=True,
         verbose=1
     )
 
-    json_file_path = './mirnet-denoising/weights/json_file' #works
-    callbacks = [ESPCNCallback(test_img_paths, mode=config.mode, checkpoint_ep=config.checkpoint_ep), early_stopping_callback, best_epoch_callback]
+    
+    json_file_path = 'CNN/MIRNet-Keras/weights/json_file' #works
+    callbacks = [ESPCNCallback(test_img_paths, mode=config.mode, checkpoint_ep=config.checkpoint_ep), early_stopping_callback, best_epoch_callback, json_file_path]
     loss_fn = MeanSquaredError()
     optimizer = Adam(learning_rate = config.lr)
 
@@ -123,11 +124,11 @@ def train(config):
         train_ds, epochs=epochs, callbacks=callbacks, validation_data=valid_ds, verbose=1
     )
 
-    with open(json_file_path, 'r') as json_file:
-        training_metrics = json.load(json_file)
+    # with open(json_file_path, 'r') as json_file:
+    #     training_metrics = json.load(json_file)
 
-    # Plotting
-    plot_epoch_metrics(training_metrics['epoch'], training_metrics['psnr'], training_metrics['loss'])
+    # # Plotting
+    # plot_epoch_metrics(training_metrics['epoch'], training_metrics['psnr'], training_metrics['loss'])
 
 
 if __name__ == "__main__":
@@ -141,14 +142,14 @@ if __name__ == "__main__":
 	parser.add_argument('--num_epochs', type=int, default=100)
 	parser.add_argument('--train_batch_size', type=int, default=8)
 	parser.add_argument('--checkpoint_ep', type=int, default=1)
-	parser.add_argument('--checkpoint_filepath', type=str, default="./mirnet-denoising/weights/denoise/")
+	parser.add_argument('--checkpoint_filepath', type=str, default="CNN/MIRNet-Keras/weights/denoise/")
 	parser.add_argument('--num_rrg', type=int, default= 3)
 	parser.add_argument('--num_mrb', type=int, default= 2)
 	parser.add_argument('--mode', type=str, default= 'denoise')
 
 	config = parser.parse_args()
 
-	# if not os.path.exists(config.checkpoint_filepath):
-	# 	os.mkdir(config.checkpoint_filepath)
+	if not os.path.exists(config.checkpoint_filepath):
+		os.mkdir(config.checkpoint_filepath)
 
 	train(config)
