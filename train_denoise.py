@@ -84,7 +84,7 @@ def train(config):
 
     
     early_stopping_callback = EarlyStopping(monitor="val_psnr_denoise", patience=10, mode='max')
-    # checkpoint_filepath = config.checkpoint_filepath
+    checkpoint_filepath = config.checkpoint_filepath
 
     
     # model_checkpoint_callback = ModelCheckpoint(
