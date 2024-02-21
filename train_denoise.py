@@ -20,7 +20,7 @@ from utils import *
 train_ds = SSID(subset='train').dataset(repeat_count=1)
 valid_ds = SSID(subset='valid').dataset(repeat_count=1)
 
-test_path = '/content/drive/MyDrive/all dataset/dataset_polarimetric_output/test/PARAM_POLAR' # works
+test_path = './drive/MyDrive/all dataset/dataset_polarimetric_output/test/PARAM_POLAR' # works
 # test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR'
 # test_img_paths = sorted(
 #     [
@@ -108,7 +108,7 @@ def train(config):
         verbose=1
     )
 
-    json_file_path = '/content/mirnet-denoising/weights/json_file' #works
+    json_file_path = './mirnet-denoising/weights/json_file' #works
     callbacks = [ESPCNCallback(test_img_paths, mode=config.mode, checkpoint_ep=config.checkpoint_ep,json_file_path=json_file_path), early_stopping_callback, current_epoch_callback, best_epoch_callback]
     loss_fn = MeanSquaredError()
     optimizer = Adam(learning_rate = config.lr)
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 	parser.add_argument('--num_epochs', type=int, default=100)
 	parser.add_argument('--train_batch_size', type=int, default=8)
 	parser.add_argument('--checkpoint_ep', type=int, default=1)
-	parser.add_argument('--checkpoint_filepath', type=str, default="/content/mirnet-denoising/weights/denoise/")
+	parser.add_argument('--checkpoint_filepath', type=str, default="./mirnet-denoising/weights/denoise/")
 	parser.add_argument('--num_rrg', type=int, default= 3)
 	parser.add_argument('--num_mrb', type=int, default= 2)
 	parser.add_argument('--mode', type=str, default= 'denoise')
