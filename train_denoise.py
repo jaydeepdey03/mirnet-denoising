@@ -109,7 +109,7 @@ def train(config):
     )
 
     json_file_path = './mirnet-denoising/weights/json_file' #works
-    callbacks = [ESPCNCallback(test_img_paths, mode=config.mode, checkpoint_ep=config.checkpoint_ep,json_file_path=json_file_path), early_stopping_callback, current_epoch_callback, best_epoch_callback]
+    callbacks = [ESPCNCallback(test_img_paths, mode=config.mode, checkpoint_ep=config.checkpoint_ep), early_stopping_callback, best_epoch_callback]
     loss_fn = MeanSquaredError()
     optimizer = Adam(learning_rate = config.lr)
 

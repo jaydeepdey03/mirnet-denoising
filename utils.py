@@ -82,56 +82,24 @@ def predict_images(model, img):
     return out_img
 
 class ESPCNCallback(keras.callbacks.Callback):
-    def __init__(self, test_img_paths, mode, checkpoint_ep, json_file_path):
+    def __init__(self, test_img_paths, mode, checkpoint_ep):
         super(ESPCNCallback, self).__init__()
         self.test_img = get_lowres_image(load_img(test_img_paths[0]), mode=mode)
         self.mode = mode
         self.checkpoint_ep = checkpoint_ep
-        self.json_file_path = json_file_path
-        self.epoch_metrics = {'epoch': [], 'psnr': [], 'loss': [], 'ssim': []}
-        # self.loss = loss
-
-    # def calculate_ssim(self, image1, image2):
-    #     return ssim(image1, image2, channel_axis=True)
 
     # Store PSNR value in each epoch.
     def on_epoch_begin(self, epoch, logs=None):
         self.psnr = []
-        self.loss = []
-        self.ssim = []
 
     def on_epoch_end(self, epoch, logs=None):
-        mean_psnr = np.mean(self.psnr)
-        mean_loss = np.mean(self.loss)
-        mean_ssim = np.mean(self.ssim)
-
-        # print("Mean PSNR for epoch: %.2f" % (np.mean(self.psnr)))
-        self.epoch_metrics['epoch'].append(epoch)
-        self.epoch_metrics['psnr'].append(float(mean_psnr))
-        print("Epoch {}: Mean PSNR: {:.2f}, Mean SSIM: {:.4f}, Mean Loss: {:.4f}".format(epoch, mean_psnr, mean_ssim, mean_loss))
-        # self.epoch_metrics['loss'].append(float(mean_loss))
-
-        json_filename = 'epoch{}_metrics.json'.format(epoch)
-        json_file_path = os.path.join(self.json_file_path, json_filename)
-
-        with open(json_file_path, 'w') as json_file:
-            json.dump(self.epoch_metrics, json_file)
-
-
+        print("Mean PSNR for epoch: %.2f" % (np.mean(self.psnr)))
         if (epoch + 1)  % self.checkpoint_ep == 0:
             prediction = predict_images(self.model, self.test_img)
             plot_results(prediction, "epoch-" + str(epoch), "prediction", mode=self.mode)
 
     def on_test_batch_end(self, batch, logs=None):
-        generated_img = predict_images(self.model, self.test_img)
-        # current_ssim = self.calculate_ssim(self.test_img, generated_img)
-
-        print(generated_img, 'img generated')
-
-
         self.psnr.append(10 * math.log10(255.0 / logs["loss"]))
-        # self.epoch_metrics['ssim'].append(current_ssim)
-        self.epoch_metrics['loss'].append(logs["loss"])
 
 
 
