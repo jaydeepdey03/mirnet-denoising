@@ -7,3 +7,4 @@ annotated_images
 result
 test
 __pycache__
+.DS_Store

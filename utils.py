@@ -8,15 +8,15 @@ import json
 from tensorflow.python.data.experimental import AUTOTUNE
 from tensorflow import keras
 
-
+from skimage.metrics import structural_similarity as ssim
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import PIL
+
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import array_to_img
 from keras.preprocessing.image import img_to_array
-
 
 def plot_results(img, prefix, title, mode):
     """Plot the result with zoom-in area."""
@@ -88,32 +88,47 @@ class ESPCNCallback(keras.callbacks.Callback):
         self.mode = mode
         self.checkpoint_ep = checkpoint_ep
         self.json_file_path = json_file_path
-        self.epoch_metrics = {'epoch': [], 'psnr': [], 'loss': []}
+        self.epoch_metrics = {'epoch': [], 'psnr': [], 'loss': [], 'ssim': []}
+        # self.loss = loss
 
 
 
     # Store PSNR value in each epoch.
     def on_epoch_begin(self, epoch, logs=None):
         self.psnr = []
+        self.loss = []
+        self.ssim = []
 
     def on_epoch_end(self, epoch, logs=None):
         mean_psnr = np.mean(self.psnr)
         mean_loss = np.mean(self.loss)
+        mean_ssim = np.mean(self.ssim)
+
         # print("Mean PSNR for epoch: %.2f" % (np.mean(self.psnr)))
-        print("Epoch {}: Mean PSNR: {:.2f}, Mean Loss: {:.4f}".format(epoch, mean_psnr, mean_loss))
         self.epoch_metrics['epoch'].append(epoch)
         self.epoch_metrics['psnr'].append(float(mean_psnr))
-        self.epoch_metrics['loss'].append(float(mean_loss))
+        print("Epoch {}: Mean PSNR: {:.2f}, Mean SSIM: {:.4f}, Mean Loss: {:.4f}".format(epoch, mean_psnr, mean_ssim, mean_loss))
+        # self.epoch_metrics['loss'].append(float(mean_loss))
 
-        with open(self.json_file_path, 'w') as json_file:
+        json_filename = 'epoch{}_metrics.json'.format(epoch)
+        json_file_path = os.path.join(self.json_file_path, json_filename)
+
+        with open(json_file_path, 'w') as json_file:
             json.dump(self.epoch_metrics, json_file)
+
 
         if (epoch + 1)  % self.checkpoint_ep == 0:
             prediction = predict_images(self.model, self.test_img)
             plot_results(prediction, "epoch-" + str(epoch), "prediction", mode=self.mode)
 
     def on_test_batch_end(self, batch, logs=None):
+        # generated_img = predict_images(self.model, self.test_img)
+        # current_ssim = ssim(self.test_img, generated_img, multichannel=True)
+
         self.psnr.append(10 * math.log10(255.0 / logs["loss"]))
+        # self.epoch_metrics['ssim'].append(current_ssim)
+        self.epoch_metrics['loss'].append(logs["loss"])
+
 
 
 class SSID:
@@ -183,52 +198,6 @@ class SSID:
         print(f'Caching decoded images in {cache_file} ...')
         for _ in ds: pass
         print(f'Cached decoded images in {cache_file}.')
-
-
-class LOL:
-    def __init__(self,
-                 subset='train'):
-
-        if subset == 'train':
-            self.images_dir = "our485"
-            self.data_ids = [i for i in sorted(os.listdir(os.path.join(self.images_dir, 'high'))) if 'png' in i]
-        elif subset == 'valid':
-            self.images_dir = "eval15"
-            self.data_ids = [i for i in sorted(os.listdir(os.path.join(self.images_dir, 'high'))) if 'png' in i]
-        else:
-            raise ValueError("subset must be 'train' or 'valid'")
-
-        self.subset = subset
-        # self.images_dir = images_dir
-
-    def __len__(self):
-        return len(self.image_ids)
-
-    def dataset(self, batch_size=4, repeat_count=None, random_transform=True):
-        ds = tf.data.Dataset.zip((self.lr_dataset(), self.hr_dataset()))
-        if random_transform:
-            ds = ds.map(lambda lr, hr: random_crop(lr, hr), num_parallel_calls=AUTOTUNE)
-            ds = ds.map(random_rotate, num_parallel_calls=AUTOTUNE)
-            ds = ds.map(random_flip, num_parallel_calls=AUTOTUNE)
-            # ds = ds.map(scaling, num_parallel_calls=AUTOTUNE)
-        ds = ds.batch(batch_size)
-        ds = ds.repeat(repeat_count)
-        ds = ds.prefetch(buffer_size=AUTOTUNE)
-        return ds
-
-    def hr_dataset(self):
-        ds = self._images_dataset(self._hr_image_files())
-        return ds
-
-    def lr_dataset(self):
-        ds = self._images_dataset(self._lr_image_files())
-        return ds
-
-    def _hr_image_files(self):
-        return [os.path.join(self.images_dir, 'high', f'{image_id}') for image_id in self.data_ids]
-
-    def _lr_image_files(self):
-        return [os.path.join(self.images_dir, 'low', f'{image_id}') for image_id in self.data_ids]
 
     @staticmethod
     def _images_dataset(image_files):
@@ -302,3 +271,4 @@ def custom_loss_function(y_true, y_pred):
     squared_difference = tf.square(y_true - y_pred) +  tf.square(1e-3)
     return tf.sqrt(tf.reduce_mean(squared_difference, axis=-1))
     
+

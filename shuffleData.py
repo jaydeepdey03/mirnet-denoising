@@ -4,7 +4,7 @@ import shutil
 
 def shuffle_data(src_folder, dest_folder, fraction):
     # Get list of all image files in source folder
-    image_files = [f for f in os.listdir(os.path.join(src_folder, 'PARAM_POLAR')) if f.endswith(('.png'))]
+    image_files = [f for f in os.listdir(os.path.join(src_folder, 'images')) if f.endswith(('.png'))]
     
     # Shuffle the files randomly
     random.shuffle(image_files)
@@ -17,19 +17,19 @@ def shuffle_data(src_folder, dest_folder, fraction):
         image_file = image_files[i]
         label_file = image_file.split('.')[0] + '.xml'
         
-        src_image_path = os.path.join(src_folder, 'PARAM_POLAR', image_file)
-        src_label_path = os.path.join(src_folder, 'LABELS', label_file)
+        src_image_path = os.path.join(src_folder, 'images', image_file)
+        src_label_path = os.path.join(src_folder, 'labels_xml', label_file)
         
-        dest_image_path = os.path.join(dest_folder, 'PARAM_POLAR', image_file)
-        dest_label_path = os.path.join(dest_folder, 'LABELS', label_file)
+        dest_image_path = os.path.join(dest_folder, 'images', image_file)
+        dest_label_path = os.path.join(dest_folder, 'labels_xml', label_file)
         
         # Move the files
         shutil.move(src_image_path, dest_image_path)
         shutil.move(src_label_path, dest_label_path)
 
 if __name__ == "__main__":
-    train_folder = "./CNN_Denoising/MIRNet-Keras/dataset_polarimetric/test"
-    test_folder = "./CNN_Denoising/MIRNet-Keras/dataset_polarimetric/train"
+    train_folder = "./CNN/MIRNet-Keras/dataset_polarimetric_modified/train"
+    test_folder = "./CNN/MIRNet-Keras/dataset_polarimetric_modified/test"
     
     # Fraction of data to shuffle (e.g., 0.2 for 20%)
     shuffle_fraction = 0.2
