@@ -91,6 +91,9 @@ class ESPCNCallback(keras.callbacks.Callback):
         self.epoch_metrics = {'epoch': [], 'psnr': [], 'loss': [], 'ssim': []}
         # self.loss = loss
 
+    def calculate_ssim(self, image1, image2):
+        return ssim(image1, image2, multichannel=True)
+
 
 
     # Store PSNR value in each epoch.
@@ -122,8 +125,9 @@ class ESPCNCallback(keras.callbacks.Callback):
             plot_results(prediction, "epoch-" + str(epoch), "prediction", mode=self.mode)
 
     def on_test_batch_end(self, batch, logs=None):
-        # generated_img = predict_images(self.model, self.test_img)
-        # current_ssim = ssim(self.test_img, generated_img, multichannel=True)
+        generated_img = predict_images(self.model, self.test_img)
+        current_ssim = self.calculate_ssim(self.test_img, generated_img)
+
 
         self.psnr.append(10 * math.log10(255.0 / logs["loss"]))
         # self.epoch_metrics['ssim'].append(current_ssim)
