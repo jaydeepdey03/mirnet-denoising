@@ -22,7 +22,7 @@ train_ds = SSID(subset='train').dataset(repeat_count=1)
 valid_ds = SSID(subset='valid').dataset(repeat_count=1)
 
 # test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR' # works
-test_path = './mirnet-denoising/dataset_polarimetric_output/test/PARAM_POLAR' # works
+test_path = './drive/MyDrive/all_dataset/dataset_polarimetric_output/test/PARAM_POLAR' # works
 # test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR'
 # test_img_paths = sorted(
 #     [
