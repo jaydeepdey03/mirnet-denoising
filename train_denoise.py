@@ -12,6 +12,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.losses import MeanSquaredError
 from keras.optimizers.legacy import Adam
 from utils import *
+from keras.models import load_model
 
 
 # print(os.getcwd())
@@ -20,7 +21,8 @@ from utils import *
 train_ds = SSID(subset='train').dataset(repeat_count=1)
 valid_ds = SSID(subset='valid').dataset(repeat_count=1)
 
-test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR' # works
+# test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR' # works
+test_path = './mirnet-denoising/dataset_polarimetric_output/test/PARAM_POLAR' # works
 # test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR'
 # test_img_paths = sorted(
 #     [
@@ -70,65 +72,41 @@ def train(config):
     x = Input(shape=(None, None, 3))
     out = mir_x.main_model(x)
     model = Model(inputs=x, outputs=out)
-    model.summary()
-
-    if os.path.exists(config.checkpoint_filepath):
-        latest_checkpoint = tf.train.latest_checkpoint(config.checkpoint_filepath)
-        if latest_checkpoint:
-            print(f"Loading weights from {latest_checkpoint}")
-            model.load_weights(latest_checkpoint)
-        else:
-            print("No previous weights found. Training from scratch.")
-    else:
-        os.mkdir(config.checkpoint_filepath)
-
+    
     
     early_stopping_callback = EarlyStopping(monitor="val_psnr_denoise", patience=10, mode='max')
     checkpoint_filepath = config.checkpoint_filepath
 
-    
-    # model_checkpoint_callback = ModelCheckpoint(
-    #     checkpoint_filepath + f'{{epoch:02d}}_{{psnr_denoise:.2f}}.h5',
-    #     monitor="val_psnr_denoise",
-    #     mode="max",
-    #     save_best_only=True,
-    #     period=1
-    # )
-
     current_epoch_callback = ModelCheckpoint(
         checkpoint_filepath + 'currentEpoch/' + f'epoch_{{epoch:02d}}.h5',
         save_every='epoch',  # Save after each epoch
-        verbose=1
+        verbose=2
     )
     best_epoch_callback = ModelCheckpoint(
         checkpoint_filepath + 'bestEpochTillNow/'+ f'best_{{val_psnr_denoise:.2f}}.h5',
         monitor='val_psnr_denoise',
         mode='max',
         save_best_only=True,
-        verbose=1
+        verbose=2
     )
 
     
-    json_file_path = 'CNN/MIRNet-Keras/weights/json_file' #works
-    callbacks = [ESPCNCallback(test_img_paths, mode=config.mode, checkpoint_ep=config.checkpoint_ep), early_stopping_callback, best_epoch_callback, json_file_path]
+    # json_file_path = 'CNN/MIRNet-Keras/weights/json_file' #works
+    json_file_path = './mirnet-denoising/weights/json_file' #works
+    callbacks = [ESPCNCallback(test_img_paths, mode=config.mode, checkpoint_ep=config.checkpoint_ep, json_file_path=json_file_path), early_stopping_callback, best_epoch_callback]
     loss_fn = MeanSquaredError()
     optimizer = Adam(learning_rate = config.lr)
 
-    epochs = 10 #config.num_epochs
+    epochs = 15 #config.num_epochs
 
     model.compile(
         optimizer=optimizer, loss=loss_fn, metrics=[psnr_denoise]
     )
 
     history = model.fit(
-        train_ds, epochs=epochs, callbacks=callbacks, validation_data=valid_ds, verbose=1
+        train_ds, epochs=epochs, callbacks=callbacks, validation_data=valid_ds, verbose=1,
     )
 
-    # with open(json_file_path, 'r') as json_file:
-    #     training_metrics = json.load(json_file)
-
-    # # Plotting
-    # plot_epoch_metrics(training_metrics['epoch'], training_metrics['psnr'], training_metrics['loss'])
 
 
 if __name__ == "__main__":
@@ -140,9 +118,10 @@ if __name__ == "__main__":
 	parser.add_argument('--gpu', type=str, default='0')
 	parser.add_argument('--grad_clip_norm', type=float, default=0.1)
 	parser.add_argument('--num_epochs', type=int, default=100)
-	parser.add_argument('--train_batch_size', type=int, default=8)
-	parser.add_argument('--checkpoint_ep', type=int, default=1)
-	parser.add_argument('--checkpoint_filepath', type=str, default="CNN/MIRNet-Keras/weights/denoise/")
+	parser.add_argument('--train_batch_size', type=int, default=32)
+	parser.add_argument('--checkpoint_ep', type=int, default=2)
+	# parser.add_argument('--checkpoint_filepath', type=str, default="CNN/MIRNet-Keras/weights/denoise/")
+	parser.add_argument('--checkpoint_filepath', type=str, default="./mirnet-denoising/weights/denoise/")
 	parser.add_argument('--num_rrg', type=int, default= 3)
 	parser.add_argument('--num_mrb', type=int, default= 2)
 	parser.add_argument('--mode', type=str, default= 'denoise')

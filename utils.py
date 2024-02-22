@@ -17,6 +17,7 @@ import PIL
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import array_to_img
 from keras.preprocessing.image import img_to_array
+import pickle
 
 def plot_results(img, prefix, title, mode):
     """Plot the result with zoom-in area."""
@@ -88,18 +89,29 @@ class ESPCNCallback(keras.callbacks.Callback):
         self.mode = mode
         self.checkpoint_ep = checkpoint_ep
         self.json_file_path = json_file_path
-
+        self.epoch_metrics = {'epoch': [], 'psnr': [], 'loss': []}
     # Store PSNR value in each epoch.
-    def on_epoch_begin(self, epoch, logs=None):
+    def on_epoch_begin(self, epoch, logs):
         self.psnr = []
+        print('logs on begin', logs)
+        # psnr_value = psnr_denoise(self.test_img, predict_images(self.model, self.test_img))
+        # print(psnr_value)
 
-    def on_epoch_end(self, epoch, logs=None):
+
+    def on_epoch_end(self, epoch, logs):
+        # psnr_value = psnr_denoise(self.test_img, predict_images(self.model, self.test_img))
+        # print(self.psnr, 'self.psnr afte epoch end')
+        print('log after epoch end', logs)
         print("Mean PSNR for epoch: %.2f" % (np.mean(self.psnr)))
+        self.epoch_metrics['epoch'].append(epoch)
+        self.epoch_metrics['psnr'].append(self.psnr)
+        # self.epoch_metrics['loss'].append(logs['loss'])
         json_filename = 'epoch{}_metrics.json'.format(epoch)
         json_file_path = os.path.join(self.json_file_path, json_filename)
         
-        with open(json_file_path, 'w') as json_file:
+        with open(json_file_path, 'a') as json_file:
             json.dump(self.epoch_metrics, json_file)
+            json.dump(logs, json_file)
 
         if (epoch + 1)  % self.checkpoint_ep == 0:
             prediction = predict_images(self.model, self.test_img)
@@ -111,13 +123,13 @@ class ESPCNCallback(keras.callbacks.Callback):
 
 
 class SSID:
-    def __init__(self,
-                 subset='train',ls=os.listdir("CNN/MIRNet-Keras/dataset"),
-                 images_dir='CNN/MIRNet-Keras/dataset'):
-        
     # def __init__(self,
-    #              subset='train',ls=os.listdir("/content/drive/MyDrive/dataset"),
-    #              images_dir='/content/drive/MyDrive/dataset'):
+    #              subset='train',ls=os.listdir("CNN/MIRNet-Keras/dataset"),
+    #              images_dir='CNN/MIRNet-Keras/dataset'):
+        
+    def __init__(self,
+                 subset='train',ls=os.listdir("./drive/MyDrive/all_dataset/dataset"),
+                 images_dir='./drive/MyDrive/all_dataset/dataset'):
         
         # with open(instant_name) as f:
         #     ls = [l.rstrip() for l in f]
@@ -241,13 +253,6 @@ def psnr_denoise(y_true, y_pred):
     """"Calculating peak signal-to-noise ratio (PSNR) between two images."""
     return tf.image.psnr(y_pred, y_true, max_val=1.0)
 
-def psnr_delight(y_true, y_pred):
-    """"Calculating peak signal-to-noise ratio (PSNR) between two images."""
-    return tf.image.psnr(y_pred, y_true, max_val=255.0)
-
-
 def custom_loss_function(y_true, y_pred):
     squared_difference = tf.square(y_true - y_pred) +  tf.square(1e-3)
     return tf.sqrt(tf.reduce_mean(squared_difference, axis=-1))
-    
-
