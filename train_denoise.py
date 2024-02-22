@@ -100,7 +100,7 @@ def train(config):
     epochs = 15 #config.num_epochs
 
     model.compile(
-        optimizer=optimizer, loss=loss_fn, metrics=[psnr_denoise]
+        optimizer=optimizer, loss=loss_fn, metrics=[psnr_denoise, ssim_denoise]
     )
 
     history = model.fit(

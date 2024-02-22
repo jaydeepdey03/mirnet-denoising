@@ -253,6 +253,10 @@ def psnr_denoise(y_true, y_pred):
     """"Calculating peak signal-to-noise ratio (PSNR) between two images."""
     return tf.image.psnr(y_pred, y_true, max_val=1.0)
 
+def ssim_denoise(y_true, y_pred):
+    """"Calculating peak signal-to-noise ratio (PSNR) between two images."""
+    return tf.image.psnr(y_pred, y_true, max_val=1.0)
+
 def custom_loss_function(y_true, y_pred):
     squared_difference = tf.square(y_true - y_pred) +  tf.square(1e-3)
     return tf.sqrt(tf.reduce_mean(squared_difference, axis=-1))
