@@ -128,8 +128,8 @@ class SSID:
     #              images_dir='CNN/MIRNet-Keras/dataset'):
         
     def __init__(self,
-                 subset='train',ls=os.listdir("./drive/MyDrive/all_dataset/dataset"),
-                 images_dir='./drive/MyDrive/all_dataset/dataset'):
+                 subset='train',ls=os.listdir("CNN/MIRNet-Keras/dataset"),
+                 images_dir='CNN/MIRNet-Keras/dataset'):
         
         # with open(instant_name) as f:
         #     ls = [l.rstrip() for l in f]
