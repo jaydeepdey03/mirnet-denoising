@@ -7,8 +7,6 @@ import numpy as np
 import json
 from tensorflow.python.data.experimental import AUTOTUNE
 from tensorflow import keras
-
-from skimage.metrics import structural_similarity as ssim
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
@@ -17,7 +15,40 @@ import PIL
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import array_to_img
 from keras.preprocessing.image import img_to_array
-import pickle
+
+
+# def psnr_denoise(original_img, denoised_img):
+#     # Ensure images are in float64 format
+#     original_img = original_img.astype(np.float64)
+#     denoised_img = denoised_img.astype(np.float64)
+
+#     # Calculate MSE
+#     mse = np.mean((original_img - denoised_img) ** 2)
+
+#     # If MSE is close to zero, return a very high PSNR value
+#     if mse == 0:
+#         return float('inf')
+
+#     # Calculate PSNR
+#     max_pixel = 255.0
+#     psnr = 20 * np.log10(max_pixel / np.sqrt(mse))
+#     return psnr
+
+
+# def ssim_denoise(original_img, denoised_img):
+#     # Convert images to float64
+#     original_img = original_img.astype(np.float64)
+#     denoised_img = denoised_img.astype(np.float64)
+
+#     # Ensure range is [0, 1]
+#     original_img /= 255.0
+#     denoised_img /= 255.0
+
+#     # Calculate SSIM
+#     ssim = sk_ssim(original_img, denoised_img, multichannel=True)
+#     return ssim
+
+
 
 def plot_results(img, prefix, title, mode):
     """Plot the result with zoom-in area."""
@@ -110,7 +141,6 @@ class ESPCNCallback(keras.callbacks.Callback):
         json_file_path = os.path.join(self.json_file_path, json_filename)
         
         with open(json_file_path, 'a') as json_file:
-            json.dump(self.epoch_metrics, json_file)
             json.dump(logs, json_file)
 
         if (epoch + 1)  % self.checkpoint_ep == 0:
@@ -128,17 +158,25 @@ class SSID:
     #              images_dir='CNN/MIRNet-Keras/dataset'):
         
     def __init__(self,
-                 subset='train',ls=os.listdir("CNN/MIRNet-Keras/dataset"),
-                 images_dir='CNN/MIRNet-Keras/dataset'):
+                 subset='train',ls=os.listdir("CNN/MIRNet-Keras/withGAN/dataset_complete/dataset_split"),
+                 images_dir='CNN/MIRNet-Keras/withGAN/dataset_complete/dataset_split'):
         
         # with open(instant_name) as f:
         #     ls = [l.rstrip() for l in f]
-
+        print(ls[0])
+        print(ls[-1])
+        print(len(ls))
+        
         if subset == 'train':
-            self.image_ids = range(0, 804)
+            self.image_ids = range(0, 1100)
+            # self.image_ids = range(0, 247)
+            print("train: ", len(self.image_ids))
             self.data_ids = [ls[i] for i in self.image_ids]
+            # print(self.data_ids)
         elif subset == 'valid':
-            self.image_ids = range(804, 1005)
+            self.image_ids = range(1100, 1376)
+            # self.image_ids = range(247, 308)
+            print("valid: ", len(self.image_ids))
             self.data_ids = [ls[i] for i in self.image_ids]
         else:
             raise ValueError("subset must be 'train' or 'valid'")
@@ -254,8 +292,8 @@ def psnr_denoise(y_true, y_pred):
     return tf.image.psnr(y_pred, y_true, max_val=1.0)
 
 def ssim_denoise(y_true, y_pred):
-    """"Calculating peak signal-to-noise ratio (PSNR) between two images."""
-    return tf.image.psnr(y_pred, y_true, max_val=1.0)
+    """"Calculating ssim between two images."""
+    return tf.image.ssim(y_pred, y_true, max_val=1.0)
 
 def custom_loss_function(y_true, y_pred):
     squared_difference = tf.square(y_true - y_pred) +  tf.square(1e-3)

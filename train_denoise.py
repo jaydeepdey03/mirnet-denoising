@@ -22,7 +22,8 @@ train_ds = SSID(subset='train').dataset(repeat_count=1)
 valid_ds = SSID(subset='valid').dataset(repeat_count=1)
 
 # test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR' # works
-test_path = './drive/MyDrive/all_dataset/dataset_polarimetric_output/test/PARAM_POLAR' # works
+# test_path = './drive/MyDrive/all_dataset/dataset_polarimetric_output/test/PARAM_POLAR' # works
+test_path = "CNN/MIRNet-Keras/withGAN/dataset_complete/testing"
 # test_path = 'CNN/MIRNet-Keras/dataset_polarimetric_output/test/PARAM_POLAR'
 # test_img_paths = sorted(
 #     [
@@ -121,7 +122,7 @@ if __name__ == "__main__":
 	parser.add_argument('--train_batch_size', type=int, default=32)
 	parser.add_argument('--checkpoint_ep', type=int, default=2)
 	# parser.add_argument('--checkpoint_filepath', type=str, default="CNN/MIRNet-Keras/weights/denoise/")
-	parser.add_argument('--checkpoint_filepath', type=str, default="./mirnet-denoising/weights/denoise/")
+	parser.add_argument('--checkpoint_filepath', type=str, default="CNN/MIRNet-Keras/weights/denoise/bestEpochTillNow/")
 	parser.add_argument('--num_rrg', type=int, default= 3)
 	parser.add_argument('--num_mrb', type=int, default= 2)
 	parser.add_argument('--mode', type=str, default= 'denoise')

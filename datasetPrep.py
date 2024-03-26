@@ -19,13 +19,13 @@ def create_dataset(train_folder, validation_folder, dataset_folder):
         os.makedirs(dataset_subfolder, exist_ok=True)
 
         # Copy and rename the images to the dataset subdirectory
-        shutil.copy(train_image_path, os.path.join(dataset_subfolder, f"{image_name}_test.png"))
-        shutil.copy(validation_image_path, os.path.join(dataset_subfolder, f"{image_name}_noisy.png"))
+        shutil.copy(train_image_path, os.path.join(dataset_subfolder, f"{image_name}_noisy.png"))
+        shutil.copy(validation_image_path, os.path.join(dataset_subfolder, f"{image_name}_test.png"))
 
 
 if __name__ == "__main__":
-    train_folder = "./dataset_polarimetric/train/PARAM_POLAR"
-    validation_folder = "./dataset_polarimetric_output/train/PARAM_POLAR"
-    dataset_folder = "./dataset"
+    train_folder = "CNN/MIRNet-Keras/withoutGAN/train_with_noise_images"
+    validation_folder = "CNN/MIRNet-Keras/withoutGAN/train_without_noise_images"
+    dataset_folder = "CNN/MIRNet-Keras/withoutGAN/dataset_split"
 
     create_dataset(train_folder, validation_folder, dataset_folder)
